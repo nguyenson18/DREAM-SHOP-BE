@@ -3,10 +3,10 @@ const { param } = require("express-validator");
 const {
   createOrther,
   getListOrther,
-  updateCountOrther,
   deletedSingleProudctOrther,
   updateOrther,
   getListBookingProduct,
+  updateQuantity,
 } = require("../controller/orther.controller");
 const authentication = require("../middlwe/authentication");
 const validations = require("../middlwe/validations");
@@ -33,7 +33,7 @@ router.get(
 );
 // update product in orther
 router.put(
-  "/single/:ortherId",
+  "/quantity/:ortherId",
   authentication.loginRequired,
   validations.validate([
     param("ortherId", "invalid productId")
@@ -41,7 +41,7 @@ router.put(
       .notEmpty()
       .custom(validations.checkObjectId),
   ]),
-  updateCountOrther
+  updateQuantity
 );
 // deleted product in orther
 router.delete(
@@ -55,9 +55,9 @@ router.delete(
   ]),
   deletedSingleProudctOrther
 );
-//update orther
+//update orther confirm
 router.put(
-  "/confirm",
+  "/status",
   authentication.loginRequired,
   validations.validate([]),
   updateOrther

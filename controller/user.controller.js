@@ -10,7 +10,6 @@ userController.createUser = catchAsync(async (req, res, next) => {
   let { email, password, name } = req.body;
   let { role } = req.query;
   if (role && role.includes("master")) {
-    console.log(password.length);
     let user = await User.findOne({ email });
     if (user) throw new AppError(400, "User exists", "Create User Error");
     if (!password.length >= 8)
@@ -112,7 +111,7 @@ userController.resetPassword = catchAsync(async (req, res, next) => {
   let templateVars = { name: user[0]?.name };
   let subject = "Reset Password";
   await sendMail({ template: "template", templateVars, subject, to: email });
-  user = await User.updateOne({ email: email }, { password: password });  
+  user = await User.updateOne({ email: email }, { password: password });
   sendResponse(res, 200, true, user, null, "Reset Password Success");
 });
 // change password

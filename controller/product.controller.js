@@ -1,13 +1,30 @@
 const { catchAsync, AppError, sendResponse } = require("../helpers/utils");
 const Brand = require("../model/brand");
 const Catego = require("../model/category");
+const Orther = require("../model/ordther");
 const Product = require("../model/product");
+const Review = require("../model/review");
 const User = require("../model/user");
 
 const productController = {};
 
+productController.createProduct = catchAsync(async (req, res, next) => {
+  const currentUserId = req.userId;
+  const userId = req.params.userId;
+  const { name } = req.body;
+  if (currentUserId !== userId)
+    throw new AppError(400, "User not Exists", "Create Product Error");
+  const user = await User.findById(currentUserId);
+  if (user.role === "normal")
+    throw new AppError(400, "User not Exists", "Create Product Error");
+
+  sendResponse(res, 200, true, {}, null, "create Product success");
+});
 // get all product
 productController.getAllProduct = catchAsync(async (req, res, next) => {
+  const currentUserId = req.userId;
+  let user = await User.findById(currentUserId);
+
   let { page, limit, ...filterQuery } = req.query;
   const allowfilter = ["search", "type", "gte", "lte"];
 
@@ -53,7 +70,7 @@ productController.getAllProduct = catchAsync(async (req, res, next) => {
               { authorBrand: { $in: arrBrand } },
               { authorCatego: { $in: arrCategory } },
               {
-                model: {
+                "description.model": {
                   $regex: new RegExp(filterQuery.search, "i") || "",
                 },
               },
@@ -64,18 +81,22 @@ productController.getAllProduct = catchAsync(async (req, res, next) => {
 
   if (filterQuery.type) {
     if (filterQuery.type?.includes("high-low")) {
-      type = { latest_price: -1 };
+      type = { "description.latest_price": -1 };
     } else if (filterQuery.type?.includes("low-high")) {
-      type = { latest_price: 1 };
+      type = { "description.latest_price": 1 };
     } else {
       filterConditions.push({ newProduct: `${filterQuery.type}` });
     }
   }
   if (filterQuery.gte) {
-    filterConditions.push({ latest_price: { $gte: filterQuery.gte } });
+    filterConditions.push({
+      "description.latest_price": { $gte: Number(filterQuery.gte) },
+    });
   }
   if (filterQuery.lte) {
-    filterConditions.push({ latest_price: { $lte: filterQuery.lte } });
+    filterConditions.push({
+      "description.latest_price": { $lte: Number(filterQuery.lte) },
+    });
   }
 
   const filterCrirerial = isQuery === true ? { $and: filterConditions } : {};
@@ -89,6 +110,7 @@ productController.getAllProduct = catchAsync(async (req, res, next) => {
         path: "authorBrand",
         model: Brand,
       },
+      { path: "reviews", model: Review },
     ]);
 
   const offset = limit * (page - 1);
@@ -118,9 +140,12 @@ productController.getAllProduct = catchAsync(async (req, res, next) => {
 productController.getSingleProduct = catchAsync(async (req, res, next) => {
   const productId = req.params.productId;
 
-  const product = await Product.findById(productId)
-    .populate({ path: "authorCatego", model: Catego })
-    .populate({ path: "authorBrand", model: Brand });
+  const product = await Product.findById(productId).populate([
+    { path: "authorCatego", model: Catego },
+    { path: "authorBrand", model: Brand },
+    { path: "reviews", model: Review },
+  ]);
+
   if (!product)
     throw new AppError(400, "Product Not Exists", "Get Single Product Error");
 
@@ -128,10 +153,11 @@ productController.getSingleProduct = catchAsync(async (req, res, next) => {
 });
 //get list brand procuct
 productController.getListBrandProduct = catchAsync(async (req, res, next) => {
+  const currentUserId = req.userId;
+  let user = await User.findById(currentUserId);
   let { page, limit, ...filterQuery } = req.query;
   const allowfilter = ["category", "brand", "search", "type", "gte", "lte"];
 
-  const brand = filterQuery.brand;
   let category;
   let type = {};
 
@@ -147,12 +173,14 @@ productController.getListBrandProduct = catchAsync(async (req, res, next) => {
     if (!filterQuery[key]) delete filterQuery[key];
   });
 
-  const newBrand = await Brand.findOne({ brand: brand });
+  const newBrand = await Brand.findOne({ brand: filterQuery.brand });
 
   const filterConditions = filterQuery.brand
     ? [
         { authorBrand: { $eq: newBrand._id } },
-        { model: { $regex: new RegExp(filterQuery.search, "i") } },
+        {
+          "description.model": { $regex: new RegExp(filterQuery.search, "i") },
+        },
       ]
     : null;
 
@@ -163,19 +191,23 @@ productController.getListBrandProduct = catchAsync(async (req, res, next) => {
 
   if (filterQuery.type) {
     if (filterQuery.type?.includes("high-low")) {
-      type = { latest_price: -1 };
+      type = { "description.latest_price": -1 };
     } else if (filterQuery.type?.includes("low-high")) {
-      type = { latest_price: 1 };
+      type = { "description.latest_price": 1 };
     } else {
       filterConditions.push({ ["newProduct"]: `${filterQuery.type}` });
     }
   }
 
   if (filterQuery.gte) {
-    filterConditions.push({ latest_price: { $gte: filterQuery.gte } });
+    filterConditions.push({
+      "description.latest_price": { $gte: Number(filterQuery.gte) },
+    });
   }
   if (filterQuery.lte) {
-    filterConditions.push({ latest_price: { $lte: filterQuery.lte } });
+    filterConditions.push({
+      "description.latest_price": { $lte: Number(filterQuery.lte) },
+    });
   }
 
   const filterCrirerial = filterQuery.brand ? { $and: filterConditions } : {};
@@ -189,6 +221,7 @@ productController.getListBrandProduct = catchAsync(async (req, res, next) => {
         path: "authorBrand",
         model: Brand,
       },
+      { path: "reviews", model: Review },
     ]);
 
   const offset = limit * (page - 1);

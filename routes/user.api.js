@@ -10,7 +10,10 @@ const {
 } = require("../controller/user.controller");
 const authentication = require("../middlwe/authentication");
 const validations = require("../middlwe/validations");
-const { getUserBooking } = require("../controller/userBooking.controller");
+const {
+  getUserBooking,
+  createUserBooking,
+} = require("../controller/userBooking.controller");
 const router = express.Router();
 
 // create User
@@ -81,6 +84,25 @@ router.post(
     body("password", "invalid password").exists().notEmpty(),
   ]),
   changePassword
+);
+//create user booking
+router.post(
+  "/userBooking",
+  authentication.loginRequired,
+  validations.validate([
+    body("email", "invalid email")
+      .exists()
+      .isEmail()
+      .notEmpty()
+      .normalizeEmail({ gmail_remove_dots: false }),
+    body("name", "invalid name").exists().notEmpty().isString(),
+    body("phone", "invalid phone").exists().notEmpty().isNumeric(),
+    body("address", "invalid address").exists().notEmpty().isString(),
+    body("streetsName", "invalid streetsName").exists().notEmpty().isString(),
+    body("district", "invalid district").exists().notEmpty().isString(),
+    body("city", "invalid city").exists().notEmpty().isString(),
+  ]),
+  createUserBooking
 );
 // get user Booking
 router.get(

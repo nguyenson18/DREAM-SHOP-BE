@@ -10,10 +10,12 @@ const authApi = require("./auth.api");
 const userApi = require("./user.api");
 const productApi = require("./product.api");
 const ortherApi = require("./orther.api");
+const reviewApi = require("./review.api");
 
 router.use("/auth", authApi);
 router.use("/users", userApi);
-router.use("/category", productApi);
+router.use("/products", productApi);
 router.use("/orther", ortherApi);
+router.use("/reviews", reviewApi);
 
 module.exports = router;
