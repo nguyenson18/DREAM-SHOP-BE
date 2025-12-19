@@ -12,12 +12,12 @@ mongoose
   .then(() => console.log("db connect success"))
   .catch((err) => console.log(err));
 const fakerShop = async () => {
-  let data = await csv().fromFile("./DataLaptop.csv");
-  const brandType = "dell"
+  let data = await csv().fromFile("DataLaptop.csv");
+  const brandType = "apple"
   const categoryType = "laptop"
-  data = data?.filter((e) => e?.brand?.includes(brandType));
+  data = data?.filter((e) => e?.Model?.includes(brandType));
   //samsung, xiaomi, huawei, Sony // lenovo, apple, asus, dell, acer, fujifilm, canon, nikon, hp
-  // data = new Set(data?.map((e) => e));
+  data = new Set(data?.map((e) => e));
   data = Array.from(data);
   let category = await Catego.findOne({ name: categoryType });
   let brand = await Brand.findOne({ brand: brandType });
@@ -28,6 +28,7 @@ const fakerShop = async () => {
     category = await Catego.create({ name: categoryType });
   }
   const newPro = ["new", "old"];
+
   for (let i = 0; i < data.length; i++) {
     const random = Math.floor(Math.random() * newPro.length);
     let discount = Number(Math.floor(Math.random() * (20 - 10) + 10));
