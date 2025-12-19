@@ -61,62 +61,45 @@ productController.getAllProduct = catchAsync(async (req, res, next) => {
       arrBrand.push(e._id);
     });
   }
+  const filterConditions =
+    isQuery === true
+      ? [
+          {
+            $or: [
+              { authorBrand: { $in: arrBrand } },
+              { authorCatego: { $in: arrCategory } },
+              {
+                "description.model": {
+                  $regex: new RegExp(filterQuery.search, "i") || "",
+                },
+              },
+            ],
+          },
+        ]
+      : null;
 
-  let filterConditions = [];
-
-  // 1) SEARCH
-  if (filterQuery.search?.trim()) {
-    const keyword = filterQuery.search.trim();
-
-    const brandDocs = await Brand.find({
-      brand: { $regex: keyword, $options: "i" },
-    });
-
-    brandDocs.forEach((e) => arrBrand.push(e._id));
-
-    if (arrBrand.length < 1) {
-      const categoryDocs = await Catego.find({
-        name: { $regex: keyword, $options: "i" },
-      });
-      categoryDocs.forEach((e) => arrCategory.push(e._id));
-    }
-
-    const or = [];
-
-    if (arrBrand.length) or.push({ authorBrand: { $in: arrBrand } });
-    if (arrCategory.length) or.push({ authorCatego: { $in: arrCategory } });
-
-    // luôn cho phép search theo model
-    or.push({ "description.model": { $regex: keyword, $options: "i" } });
-
-    filterConditions.push({ $or: or });
-  }
-
-  // 2) TYPE (sort hoặc filter)
   if (filterQuery.type) {
-    if (filterQuery.type.includes("high-low")) {
+    if (filterQuery.type?.includes("high-low")) {
       type = { "description.latest_price": -1 };
-    } else if (filterQuery.type.includes("low-high")) {
+    } else if (filterQuery.type?.includes("low-high")) {
       type = { "description.latest_price": 1 };
     } else {
-      // nếu newProduct là boolean thì đừng ép string
-      // ví dụ: type=new => newProduct=true
-      filterConditions.push({ newProduct: filterQuery.type === "new" });
+      filterConditions.push({ newProduct: `${filterQuery.type}` });
     }
   }
-
-  // 3) PRICE RANGE (gộp chung)
-  const priceCond = {};
-  if (filterQuery.gte) priceCond.$gte = Number(filterQuery.gte);
-  if (filterQuery.lte) priceCond.$lte = Number(filterQuery.lte);
-  if (Object.keys(priceCond).length) {
-    filterConditions.push({ "description.latest_price": priceCond });
+  if (filterQuery.gte) {
+    filterConditions.push({
+      "description.latest_price": { $gte: Number(filterQuery.gte) },
+    });
+  }
+  if (filterQuery.lte) {
+    filterConditions.push({
+      "description.latest_price": { $lte: Number(filterQuery.lte) },
+    });
   }
 
-  // 4) FINAL QUERY
-  const filterCrirerial =
-    filterConditions.length > 0 ? { $and: filterConditions } : {};
-  console.log(filterCrirerial)
+  const filterCrirerial = isQuery === true ? { $and: filterConditions } : {};
+
   let data = await Product.find(filterCrirerial) // {name: "" , emal: ""}
     .sort(type)
     .collation({ locale: "en_US", numericOrdering: true })
@@ -128,7 +111,7 @@ productController.getAllProduct = catchAsync(async (req, res, next) => {
       },
       { path: "reviews", model: Review },
     ]);
-    console.log(data)
+
   const offset = limit * (page - 1);
   const count = await data.length;
   const totalPage = Math.ceil(count / limit);
@@ -193,11 +176,11 @@ productController.getListBrandProduct = catchAsync(async (req, res, next) => {
 
   const filterConditions = filterQuery.brand
     ? [
-      { authorBrand: { $eq: newBrand._id } },
-      {
-        "description.model": { $regex: new RegExp(filterQuery.search, "i") },
-      },
-    ]
+        { authorBrand: { $eq: newBrand._id } },
+        {
+          "description.model": { $regex: new RegExp(filterQuery.search, "i") },
+        },
+      ]
     : null;
 
   if (filterQuery.category) {
