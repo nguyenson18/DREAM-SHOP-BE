@@ -10,7 +10,7 @@ const userBooking = new Schema(
     streetsName: { type: String, required: true },
     district: { type: String, required: true },
     city: { type: String, required: true },
-    authorUser: { type: Schema.Types.ObjectId, required: true },
+    authorUser: { type: Schema.Types.ObjectId, ref: "User", required: true }
   },
   { timestamps: true }
 );

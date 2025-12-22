@@ -1,3 +1,4 @@
+const { default: mongoose } = require("mongoose");
 const { catchAsync, AppError, sendResponse } = require("../helpers/utils");
 const Brand = require("../model/brand");
 const Catego = require("../model/category");
@@ -5,6 +6,7 @@ const Orther = require("../model/ordther");
 const Product = require("../model/product");
 const Total = require("../model/total");
 const User = require("../model/user");
+const UserBooking = require("../model/userBooking");
 
 const ortherController = {};
 // create orther
@@ -35,6 +37,7 @@ ortherController.createOrther = catchAsync(async (req, res, next) => {
   if (!orthers) {
     const ortherItems = [
       {
+        imageUrl: product.imageUrl,
         description: {
           ...product.description,
           brand: product.authorBrand.brand,
@@ -74,6 +77,7 @@ ortherController.createOrther = catchAsync(async (req, res, next) => {
       );
     } else {
       const ortherItems = {
+        imageUrl: product.imageUrl,
         description: {
           ...product.description,
           brand: product.authorBrand.brand,

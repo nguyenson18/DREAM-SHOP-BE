@@ -24,7 +24,7 @@ const sendMail = ({
     from: process.env.EMAIL,
     ...restOfOptions,
   };
-  console.log(options)
+
   if (templateName && fs.existsSync(templatePath)) {
     const template = fs.readFileSync(templatePath, "utf-8");
     const html = ejs.render(template, templateVars);

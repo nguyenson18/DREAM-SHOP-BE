@@ -13,6 +13,7 @@ const validations = require("../middlwe/validations");
 const {
   getUserBooking,
   createUserBooking,
+  updateUserBooking
 } = require("../controller/userBooking.controller");
 const router = express.Router();
 
@@ -111,4 +112,23 @@ router.get(
   validations.validate([]),
   getUserBooking
 );
+// update user booking
+router.post(
+  "/userBooking/:userId",
+  authentication.loginRequired,
+  validations.validate([
+    body("email", "invalid email")
+      .exists()
+      .isEmail()
+      .notEmpty()
+      .normalizeEmail({ gmail_remove_dots: false }),
+    body("name", "invalid name").exists().notEmpty().isString(),
+    body("phone", "invalid phone").exists().notEmpty().isNumeric(),
+    body("address", "invalid address").exists().notEmpty().isString(),
+    body("streetsName", "invalid streetsName").exists().notEmpty().isString(),
+    body("district", "invalid district").exists().notEmpty().isString(),
+    body("city", "invalid city").exists().notEmpty().isString(),
+  ]),
+  updateUserBooking
+)
 module.exports = router;

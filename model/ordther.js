@@ -17,6 +17,7 @@ const ortherSchema = new Schema(
           default: "pending",
         },
         description: Schema.Types.Mixed,
+        imageUrl: Schema.Types.Mixed,
         price: { type: Number, require: true },
         quantity: { type: Number, require: true, default: 1 },
       },

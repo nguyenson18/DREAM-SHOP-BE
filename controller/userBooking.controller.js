@@ -51,40 +51,33 @@ userBookingController.updateUserBooking = catchAsync(async (req, res, next) => {
   const currentUserId = req.userId;
   const userId = req.params.userId;
 
-  if (currentUserId !== userId)
+  if (String(currentUserId) !== String(userId)) {
     throw new AppError(400, "User Not Match", "Update User Error");
+  }
 
-  let user = await User.findById(currentUserId);
+  const user = await User.findById(currentUserId);
+  if (!user) {
+    throw new AppError(400, "User Not exists", "Update User Booking Error");
+  }
 
-  if (!user)
-    throw new AppError(
-      400,
-      "User Booking Not exstis",
-      "Update User Booking Product Error"
-    );
-  user = await UserBooking.find({ authorUser: user._id });
+  // Lấy 1 booking của user (nếu mỗi user chỉ có 1 booking)
+  const booking = await UserBooking.findOne({ authorUser: user._id });
+  if (!booking) {
+    throw new AppError(400, "User Booking Not exists", "Update User Booking Error");
+  }
 
-  if (req.body.phone.length >= 10)
-    throw new AppError(400, "Invalid Phone Number");
+  const allow = ["name", "email", "phone", "address", "streetsName", "district", "city"];
 
-  const allow = [
-    "name",
-    "email",
-    "phone",
-    "address",
-    "streetsName",
-    "district",
-    "city",
-  ];
-
-  allow.forEach(async (ele) => {
-    if (req.body[ele] !== undefined) {
-      user[ele] = req.body[ele];
+  for (const key of allow) {
+    if (req.body[key] !== undefined) {
+      booking[key] = req.body[key];
     }
-  });
-  await user.save();
+  }
 
-  sendResponse(res, 200, true, user, null, "Update User Success");
+  await booking.save();
+
+  sendResponse(res, 200, true, booking, null, "Update User Success");
 });
+
 
 module.exports = userBookingController;
