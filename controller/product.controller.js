@@ -22,9 +22,6 @@ productController.createProduct = catchAsync(async (req, res, next) => {
 });
 // get all product
 productController.getAllProduct = catchAsync(async (req, res, next) => {
-  const currentUserId = req.userId;
-  let user = await User.findById(currentUserId);
-
   let { page, limit, ...filterQuery } = req.query;
   const allowfilter = ["search", "type", "gte", "lte"];
 
