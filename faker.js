@@ -1,9 +1,10 @@
-const csv = require("csvtojson");
+// const csv = require("csvtojson");
 // const mongoose = require("mongoose");
 // const Brand = require("./model/brand");
 // const Catego = require("./model/category");
 // const Product = require("./model/product");
 // const Total = require("./model/total");
+// const Count = require("./model/count");
 // mongoose
 //   .connect(
 //     "mongodb+srv://nguyentruongson:XT0BvvagavOW7Lkx@data1.nrw3b7y.mongodb.net/?appName=data1"
@@ -13,14 +14,14 @@ const csv = require("csvtojson");
 
 // const fakerShopCamera = async () => {
 //   let data = await csv().fromFile("DataCamera.csv");
-//   const model = "Fujifilm" // Sony, Canon, Nikon, Fujifilm
+//   const model = "Nikon" // Sony, Canon, Nikon, Fujifilm
 //   const imageType = "imagecamera"
 //   data = data.filter((e) => e.Model.includes(model));
 //   data = new Set(data.map((e) => e));
 //   data = Array.from(data);
 //   const categoryType = 'camera' // camera, phone, laptop
-//   const brandType = "fujifilm" // sony, canon, nikon, fujifilm
-//   const numberMaxImage = 15
+//   const brandType = "nikon" // sony, canon, nikon, fujifilm
+//   const numberMaxImage = 19
 //   let category = await Catego.findOne({ name: categoryType });
 //   if (!category) {
 //     category = await Catego.create({ name: categoryType })
@@ -65,29 +66,35 @@ const csv = require("csvtojson");
 
 //   }
 
-//   const products = await Product.find({
-//     authorCatego: category._id,
+//   const randomNumberCount = Math.floor(Math.random() * 100) + 1;
+
+//   const resCount = await Count.create({
 //     authorBrand: brand._id,
+//     authorCatego: category._id,
+//     count: data.length,
+//     quantityRemaining: randomNumberCount,
 //   });
+
 //   const total = await Total.create({
 //     authorCatego: category._id,
 //     authorBrand: brand._id,
 //     totalProduct: Number(data.length),
-//     quantityRemaining: Number(data.length),
+//     quantityRemaining: Number(randomNumberCount),
 //   });
-
+//   console.log("succes")
 // };
 // fakerShopCamera();
 
 // const fakerShopLaptop = async () => {
 //   let data = await csv().fromFile("DataLaptop.csv");
-//   const model = "acer" // Lenovo, DELL, ASUS, acer
+//   const model = "acer" // Lenovo, DELL, ASUS, acer, APPLE
 //   const imageType = "imagelaptop"
 //   data = data.filter((e) => e.brand.includes(model));
 //   data = new Set(data.map((e) => e));
 //   data = Array.from(data);
 //   const categoryType = 'laptop' // laptop
-//   const brandType = "acer" // lenovo, dell, asus,acer
+//   const brandType = "acer" // lenovo, dell, asus, acer, apple
+//   const numberMaxImage = 5
 //   let category = await Catego.findOne({ name: categoryType });
 //   if (!category) {
 //     category = await Catego.create({ name: categoryType })
@@ -107,10 +114,10 @@ const csv = require("csvtojson");
 //       authorBrand: brand._id,
 //       imageUrl: [
 //         `https://dream-shop-be.onrender.com/${imageType}/${brandType}${Math.floor(
-//           Math.random() * (5 - 1) + 1
+//           Math.random() * (numberMaxImage - 1) + 1
 //         )}.jpg`,
 //         `https://dream-shop-be.onrender.com/${imageType}/${brandType}${Math.floor(
-//           Math.random() * (5 - 1) + 1
+//           Math.random() * (numberMaxImage - 1) + 1
 //         )}.jpg`,
 //       ],
 //       ratings: Math.floor(Math.random() * (5 - 3) + 3),
@@ -141,16 +148,22 @@ const csv = require("csvtojson");
 
 //   }
 
-//   const products = await Product.find({
-//     authorCatego: category._id,
+//   const randomNumberCount = Math.floor(Math.random() * 100) + 1;
+
+//   const resCount = await Count.create({
 //     authorBrand: brand._id,
+//     authorCatego: category._id,
+//     count: data.length,
+//     quantityRemaining: randomNumberCount,
 //   });
+
 //   const total = await Total.create({
 //     authorCatego: category._id,
 //     authorBrand: brand._id,
 //     totalProduct: Number(data.length),
-//     quantityRemaining: Number(data.length),
+//     quantityRemaining: Number(randomNumberCount),
 //   });
+//   console.log("succes")
 
 // };
 
@@ -158,14 +171,14 @@ const csv = require("csvtojson");
 
 // const fakerShopPhone = async () => {
 //   let data = await csv().fromFile("DataPhone.csv");
-//   const model = "Xiaomi" // Samsung, Apple, Xiaomi, HUAWEI
+//   const model = "HUAWEI" // Samsung, Apple, Xiaomi, HUAWEI
 //   const imageType = "imagephone"
 //   data = data.filter((e) => e.brand_name.includes(model));
 //   data = new Set(data.map((e) => e));
 //   data = Array.from(data);
 //   const categoryType = 'phone' //  phone
-//   const brandType = "xiaomi" // samsung, apple, xiaomi, huawei
-//   const numberMaxImage = 8
+//   const brandType = "huawei" // samsung, apple, xiaomi, huawei
+//   const numberMaxImage = 6
 //   let category = await Catego.findOne({ name: categoryType });
 //   if (!category) {
 //     category = await Catego.create({ name: categoryType })
@@ -219,18 +232,22 @@ const csv = require("csvtojson");
 //     });
 
 //   }
+//   const randomNumberCount = Math.floor(Math.random() * 100) + 1;
 
-//   const products = await Product.find({
-//     authorCatego: category._id,
+//   const resCount = await Count.create({
 //     authorBrand: brand._id,
+//     authorCatego: category._id,
+//     count: data.length,
+//     quantityRemaining: randomNumberCount,
 //   });
+
 //   const total = await Total.create({
 //     authorCatego: category._id,
 //     authorBrand: brand._id,
 //     totalProduct: Number(data.length),
-//     quantityRemaining: Number(data.length),
+//     quantityRemaining: Number(randomNumberCount),
 //   });
-
+//   console.log("succes")
 // };
 
 // fakerShopPhone();
